@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension",
-  "version": "0.5.0",
-  "description": "chrome extension - core settings",
+  "name": "step-snap",
+  "version": "0.0.1",
+  "description": "让每一步操作都有迹可循，每一份经验都能轻松分享。",
   "type": "module",
   "private": true,
   "sideEffects": false,
