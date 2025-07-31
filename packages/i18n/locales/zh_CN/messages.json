@@ -1,17 +1,17 @@
 {
   "extensionDescription": {
     "description": "Extension description",
-    "message": "Make every step of the process traceable, and every piece of experience easily shareable."
+    "message": "让每一步操作都有迹可循，每一份经验都能轻松分享。"
   },
   "extensionName": {
     "description": "Extension name",
     "message": "step-snap"
   },
   "toggleTheme": {
-    "message": "Toggle theme"
+    "message": "切换主题"
   },
   "injectButton": {
-    "message": "Click to inject Content Scripts"
+    "message": "点击注入内容脚本"
   },
   "greeting": {
     "description": "Greeting message",
