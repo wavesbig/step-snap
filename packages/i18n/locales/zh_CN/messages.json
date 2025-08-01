@@ -10,6 +10,9 @@
   "toggleTheme": {
     "message": "切换主题"
   },
+  "startCapture": {
+    "message": "开始录制"
+  },
   "injectButton": {
     "message": "点击注入内容脚本"
   },

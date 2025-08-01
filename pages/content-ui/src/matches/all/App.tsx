@@ -1,5 +1,5 @@
-import { t } from '@extension/i18n';
-import { ToggleButton } from '@extension/ui';
+// import { t } from '@extension/i18n';
+import { Button } from '@extension/ui';
 import { useEffect } from 'react';
 
 export default function App() {
@@ -8,11 +8,12 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded bg-blue-100 px-2 py-1">
-      <div className="flex gap-1 text-sm text-blue-500">
-        Edit <strong className="text-blue-700">pages/content-ui/src/matches/all/App.tsx</strong> and save to reload.
-      </div>
-      <ToggleButton className={'mt-0'}>{t('toggleTheme')}</ToggleButton>
+    <div>
+      {/* <div className="fixed inset-0 bottom-0 left-0 right-0 top-0 z-50 bg-black/50"></div> */}
+
+      <Button variant="default" className="w-full" size="lg">
+        1231
+      </Button>
     </div>
   );
 }

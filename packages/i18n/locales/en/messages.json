@@ -10,6 +10,9 @@
   "toggleTheme": {
     "message": "Toggle theme"
   },
+  "startCapture": {
+    "message": "Start Capture"
+  },
   "injectButton": {
     "message": "Click to inject Content Scripts"
   },
