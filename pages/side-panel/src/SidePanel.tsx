@@ -2,7 +2,7 @@ import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
 import { PROJECT_URL_OBJECT, useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { exampleThemeStorage } from '@extension/storage';
-import { cn, ErrorDisplay, LoadingSpinner, ToggleButton } from '@extension/ui';
+import { cn, ErrorDisplay, LoadingSpinner, ToggleButton, Button } from '@extension/ui';
 
 const SidePanel = () => {
   const { isLight } = useStorage(exampleThemeStorage);
@@ -20,6 +20,7 @@ const SidePanel = () => {
           Edit <code>pages/side-panel/src/SidePanel.tsx</code>
         </p>
         <ToggleButton onClick={exampleThemeStorage.toggle}>{t('toggleTheme')}</ToggleButton>
+        <Button variant="default">12313</Button>
       </header>
     </div>
   );
