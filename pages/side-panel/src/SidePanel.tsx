@@ -96,29 +96,34 @@ const SidePanel = () => {
               {isPaused ? (
                 <Button variant="outline" onClick={handleResume}>
                   <Play />
-                  Resume
+                  {/* 继续录制 */}
+                  {t('resumeCapture')}
                 </Button>
               ) : (
                 <Button variant="outline" onClick={handlePause}>
                   <Pause />
-                  Pause
+                  {/* 暂停录制 */}
+                  {t('pauseCapture')}
                 </Button>
               )}
 
               <Button variant="outline">
                 <EyeOffIcon />
-                Blur
+                {/* 模糊 */}
+                {t('blur')}
               </Button>
 
               <Button variant="outline" className="flex-1" size="lg" onClick={handleDelete}>
                 <Trash />
-                Delete
+                {/* 删除 */}
+                {t('delete')}
               </Button>
             </div>
 
             <Button variant="default" className="mt-1 w-full" size="lg" onClick={handleCompleteCapture}>
               <Check />
-              Complete Capture
+              {/* 完成录制 */}
+              {t('completeCapture')}
             </Button>
           </div>
         </div>

@@ -10,11 +10,27 @@
   "toggleTheme": {
     "message": "切换主题"
   },
+
   "startCapture": {
     "message": "开始录制"
   },
   "stopCapture": {
     "message": "停止录制"
+  },
+  "resumeCapture": {
+    "message": "继续录制"
+  },
+  "pauseCapture": {
+    "message": "暂停录制"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "completeCapture": {
+    "message": "完成录制"
+  },
+  "blur": {
+    "message": "模糊"
   },
   "nowCapturingYourBrowser": {
     "message": "现在正在录制您的浏览器。"

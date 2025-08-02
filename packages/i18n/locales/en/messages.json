@@ -17,6 +17,21 @@
   "stopCapture": {
     "message": "Stop Capture"
   },
+  "resumeCapture": {
+    "message": "Resume"
+  },
+  "pauseCapture": {
+    "message": "Pause"
+  },
+  "blur": {
+    "message": "Blur"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "completeCapture": {
+    "message": "Complete Capture"
+  },
   "nowCapturingYourBrowser": {
     "message": "Now capturing your browser."
   },
