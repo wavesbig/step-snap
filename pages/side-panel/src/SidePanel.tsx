@@ -1,7 +1,7 @@
 import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
-import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import { exampleThemeStorage, overlayStorage, recordingStorage } from '@extension/storage';
+import { useStorage, useRecording, withErrorBoundary, withSuspense } from '@extension/shared';
+import { exampleThemeStorage, overlayStorage } from '@extension/storage';
 import {
   cn,
   ErrorDisplay,
@@ -17,7 +17,17 @@ import {
 
 const SidePanel = () => {
   const { isLight } = useStorage(exampleThemeStorage);
-  const { isRecording, isPaused, steps } = useStorage(recordingStorage);
+  const {
+    isRecording,
+    isPaused,
+    steps,
+    startRecording,
+    pauseRecording,
+    resumeRecording,
+    clearSteps,
+    stopRecording,
+    completeRecording,
+  } = useRecording();
   const logo = isLight ? 'side-panel/logo_vertical.svg' : 'side-panel/logo_vertical_dark.svg';
 
   const handleStartCapture = async () => {
@@ -34,27 +44,27 @@ const SidePanel = () => {
       // }
 
       await overlayStorage.showThenHide(1000);
-      await recordingStorage.startRecording();
+      await startRecording();
     } catch (error) {
       console.error('Failed to start recording:', error);
     }
   };
 
   const handleResume = async () => {
-    await recordingStorage.resumeRecording();
+    await resumeRecording();
   };
 
   const handlePause = async () => {
-    await recordingStorage.pauseRecording();
+    await pauseRecording();
   };
 
   const handleDelete = async () => {
-    await recordingStorage.clearSteps();
-    await recordingStorage.stopRecording();
+    await clearSteps();
+    await stopRecording();
   };
 
   const handleCompleteCapture = async () => {
-    const recordedSteps = await recordingStorage.completeRecording();
+    const recordedSteps = await completeRecording();
     console.log('录制完成，步骤数据：', recordedSteps);
     // 这里可以添加保存或导出录制数据的逻辑
   };

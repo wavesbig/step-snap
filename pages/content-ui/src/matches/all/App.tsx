@@ -1,16 +1,44 @@
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
+import { useRecording, useStorage } from '@extension/shared';
 import { overlayStorage } from '@extension/storage';
 import { useEffect } from 'react';
 
 export default function App() {
   const { isVisible } = useStorage(overlayStorage);
 
-  console.log('🚀 ~ App ~ isVisible:', isVisible);
-
   useEffect(() => {
     console.log('[CEB] Content ui all loaded 111');
   }, []);
+
+  const { isRecording, isPaused, steps } = useRecording();
+
+  useEffect(() => {
+    console.log('[Recording] Content UI loaded');
+  }, []);
+
+  // 监听录制状态变化
+  useEffect(() => {
+    if (isRecording) {
+      console.log('[Recording] Started recording');
+    } else {
+      console.log('[Recording] Stopped recording');
+    }
+  }, [isRecording]);
+
+  // 监听暂停状态变化
+  useEffect(() => {
+    if (isRecording) {
+      console.log(`[Recording] ${isPaused ? 'Paused' : 'Resumed'} recording`);
+    }
+  }, [isPaused, isRecording]);
+
+  // 监听步骤变化
+  useEffect(() => {
+    if (steps.length > 0) {
+      console.log(`[Recording] Total steps: ${steps.length}`);
+      console.log('[Recording] Latest step:', steps[steps.length - 1]);
+    }
+  }, [steps]);
 
   return (
     <div>

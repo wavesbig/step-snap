@@ -1,21 +1,9 @@
 import { useStorage } from '@extension/shared';
-import { recordingStorage, RecordingUtils } from '@extension/storage';
+import { recordingStorage } from '@extension/storage';
 import { useEffect } from 'react';
 
 export default function RecordingApp() {
   const { isRecording, isPaused, steps } = useStorage(recordingStorage);
-
-  useEffect(() => {
-    console.log('[Recording] Content UI loaded');
-
-    // 初始化录制工具
-    RecordingUtils.initialize();
-
-    // 清理函数
-    return () => {
-      RecordingUtils.cleanup();
-    };
-  }, []);
 
   // 监听录制状态变化
   useEffect(() => {
