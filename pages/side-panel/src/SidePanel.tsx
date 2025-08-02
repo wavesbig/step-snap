@@ -1,7 +1,7 @@
 import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
-import { exampleThemeStorage } from '@extension/storage';
+import { exampleThemeStorage, overlayStorage } from '@extension/storage';
 import { cn, ErrorDisplay, LoadingSpinner, Button, CirclePlay } from '@extension/ui';
 
 const SidePanel = () => {
@@ -16,7 +16,7 @@ const SidePanel = () => {
         {/* <ToggleButton onClick={exampleThemeStorage.toggle}>{t('toggleTheme')}</ToggleButton> */}
       </header>
 
-      <Button variant="default" className="w-full" size="lg">
+      <Button variant="default" className="w-full" size="lg" onClick={() => overlayStorage.showThenHide(1000)}>
         <CirclePlay />
         {t('startCapture')}
       </Button>

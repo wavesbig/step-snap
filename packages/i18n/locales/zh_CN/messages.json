@@ -13,6 +13,12 @@
   "startCapture": {
     "message": "开始录制"
   },
+  "stopCapture": {
+    "message": "停止录制"
+  },
+  "nowCapturingYourBrowser": {
+    "message": "现在正在录制您的浏览器。"
+  },
   "injectButton": {
     "message": "点击注入内容脚本"
   },

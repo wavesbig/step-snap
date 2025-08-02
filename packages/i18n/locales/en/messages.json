@@ -10,8 +10,15 @@
   "toggleTheme": {
     "message": "Toggle theme"
   },
+
   "startCapture": {
     "message": "Start Capture"
+  },
+  "stopCapture": {
+    "message": "Stop Capture"
+  },
+  "nowCapturingYourBrowser": {
+    "message": "Now capturing your browser."
   },
   "injectButton": {
     "message": "Click to inject Content Scripts"
