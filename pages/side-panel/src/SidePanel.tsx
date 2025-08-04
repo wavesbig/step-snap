@@ -2,18 +2,7 @@ import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
 import { useStorage, useRecording, withErrorBoundary, withSuspense } from '@extension/shared';
 import { exampleThemeStorage, overlayStorage } from '@extension/storage';
-import {
-  cn,
-  ErrorDisplay,
-  LoadingSpinner,
-  Button,
-  CirclePlay,
-  Play,
-  Pause,
-  EyeOffIcon,
-  Trash,
-  Check,
-} from '@extension/ui';
+import { cn, ErrorDisplay, LoadingSpinner, Button, CirclePlay, RecordingSteps } from '@extension/ui';
 
 const SidePanel = () => {
   const { isLight } = useStorage(exampleThemeStorage);
@@ -84,59 +73,16 @@ const SidePanel = () => {
           </Button>
         </div>
       ) : (
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex-1 p-6">
-            {/* 显示录制状态 */}
-            <div className="rounded-lg bg-gray-100 p-3 text-center dark:bg-gray-700">
-              <div className="mb-2 flex items-center justify-center gap-2">
-                {isPaused ? (
-                  <Pause className="text-orange-500" />
-                ) : (
-                  <div className="h-3 w-3 animate-pulse rounded-full bg-red-500" />
-                )}
-                <span className="font-medium">{isPaused ? 'Capture Paused' : 'Recording...'}</span>
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">{steps.length} steps recorded</div>
-            </div>
-          </div>
-
-          {/* 操作区域 */}
-          <div className="mt-2 border-t-2 border-gray-200 px-6 py-3">
-            <div className="grid grid-cols-3 gap-2">
-              {isPaused ? (
-                <Button variant="outline" onClick={handleResume}>
-                  <Play />
-                  {/* 继续录制 */}
-                  {t('resumeCapture')}
-                </Button>
-              ) : (
-                <Button variant="outline" onClick={handlePause}>
-                  <Pause />
-                  {/* 暂停录制 */}
-                  {t('pauseCapture')}
-                </Button>
-              )}
-
-              <Button variant="outline">
-                <EyeOffIcon />
-                {/* 模糊 */}
-                {t('blur')}
-              </Button>
-
-              <Button variant="outline" className="flex-1" size="lg" onClick={handleDelete}>
-                <Trash />
-                {/* 删除 */}
-                {t('delete')}
-              </Button>
-            </div>
-
-            <Button variant="default" className="mt-1 w-full" size="lg" onClick={handleCompleteCapture}>
-              <Check />
-              {/* 完成录制 */}
-              {t('completeCapture')}
-            </Button>
-          </div>
-        </div>
+        <RecordingSteps
+          steps={steps}
+          isRecording={isRecording}
+          isPaused={isPaused}
+          onPause={handlePause}
+          onResume={handleResume}
+          onBlur={() => console.log('模糊功能待实现')}
+          onDelete={handleDelete}
+          onComplete={handleCompleteCapture}
+        />
       )}
     </div>
   );
