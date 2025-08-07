@@ -2,10 +2,11 @@ import { cn } from '../../utils';
 import { Button } from '../ui/button';
 import { t } from '@extension/i18n';
 import { Pause, Play, Trash, EyeOff, Check } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export interface RecordingStep {
   id: string;
-  type: 'navigate' | 'click' | 'input' | 'scroll' | 'wait';
+  type: 'navigate' | 'click' | 'input' | 'wait';
   timestamp: number;
   data: {
     url?: string;
@@ -13,6 +14,17 @@ export interface RecordingStep {
     value?: string;
     coordinates?: { x: number; y: number };
     description?: string;
+    screenshotId?: string | null;
+    styleInfo?: {
+      backgroundColor?: string;
+      color?: string;
+      fontSize?: string;
+      border?: string;
+      padding?: string;
+      width?: string;
+      height?: string;
+    };
+    htmlContent?: string;
   };
 }
 
@@ -43,6 +55,36 @@ export const RecordingSteps = ({
   onComplete,
   className,
 }: RecordingStepsProps) => {
+  // 用于存储从localStorage加载的截图
+  const [screenshots, setScreenshots] = useState<Record<string, string>>({});
+
+  // 从Chrome扩展存储中加载截图
+  useEffect(() => {
+    console.log(steps, 'steps');
+    const loadScreenshots = async () => {
+      const loadedScreenshots: Record<string, string> = {};
+      const screenshotIds = steps.filter(step => step.data.screenshotId).map(step => step.data.screenshotId as string);
+
+      if (screenshotIds.length > 0) {
+        try {
+          // 使用Chrome扩展存储API获取所有截图
+          const result = await chrome.storage.local.get(screenshotIds);
+
+          // 将获取的截图添加到状态中
+          Object.keys(result).forEach(id => {
+            loadedScreenshots[id] = result[id];
+          });
+
+          setScreenshots(loadedScreenshots);
+        } catch (e) {
+          console.error('Failed to load screenshots from extension storage:', e);
+        }
+      }
+    };
+
+    loadScreenshots();
+  }, [steps]);
+
   // 格式化时间戳为可读格式
   const formatTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -55,7 +97,6 @@ export const RecordingSteps = ({
       navigate: '导航',
       click: '点击',
       input: '输入',
-      scroll: '滚动',
       wait: '等待',
     };
     return typeMap[type] || type;
@@ -114,6 +155,29 @@ export const RecordingSteps = ({
 
                 {/* 步骤详情 */}
                 <p className="text-sm text-gray-600 dark:text-gray-300">{step.data.description}</p>
+
+                {/* 显示点击区域截图 */}
+                {step.type === 'click' && step.data.screenshotId && screenshots[step.data.screenshotId] && (
+                  <div className="mt-3 rounded border border-gray-200 p-2">
+                    <div className="mb-1 text-xs font-medium text-gray-500">点击区域截图：</div>
+                    <div className="relative">
+                      <img
+                        src={screenshots[step.data.screenshotId]}
+                        alt="点击区域截图"
+                        className="max-h-40 w-auto rounded border border-gray-200"
+                      />
+                      {step.data.coordinates && (
+                        <div
+                          className="absolute h-6 w-6 animate-pulse rounded-full border-2 border-red-500"
+                          style={{
+                            left: `calc(${step.data.coordinates.x}px - 12px)`,
+                            top: `calc(${step.data.coordinates.y}px - 12px)`,
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* 如果是表格类型的步骤，显示表格 */}
                 {step.type === 'click' && step.data.url && (

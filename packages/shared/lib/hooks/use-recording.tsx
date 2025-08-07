@@ -1,6 +1,23 @@
 import { useStorage } from './use-storage.js';
 import { recordingStorage } from '@extension/storage';
+import { snapdom } from '@zumer/snapdom';
 import { useEffect, useRef, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
+// 添加 ImageCapture 接口定义
+interface ImageCapture {
+  grabFrame(): Promise<ImageBitmap>;
+  takePhoto(): Promise<Blob>;
+}
+
+declare global {
+  interface Window {
+    ImageCapture?: {
+      prototype: ImageCapture;
+      new (track: MediaStreamTrack): ImageCapture;
+    };
+  }
+}
 
 /**
  * 录制工具 Hook，用于在 React 组件中管理用户操作录制
@@ -9,7 +26,6 @@ export const useRecording = () => {
   const { isRecording, isPaused, steps } = useStorage(recordingStorage);
   const isInitializedRef = useRef(false);
   const observersRef = useRef<MutationObserver[]>([]);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   /**
    * 生成元素选择器
@@ -67,6 +83,54 @@ export const useRecording = () => {
   }, []);
 
   /**
+   * 捕获元素截图
+   */
+  const captureElementScreenshot = useCallback(async (element: Element): Promise<string | null> => {
+    try {
+      // 使用 @zumer/snapdom 库捕获元素截图
+      const result = await snapdom(element as HTMLElement, {
+        // 配置选项
+        backgroundColor: 'transparent', // 透明背景
+        scale: window.devicePixelRatio || 1, // 使用设备像素比
+        format: 'png', // 输出格式为PNG
+      });
+
+      // 返回截图的 data URL
+      return result.url;
+    } catch (error) {
+      console.error('Error capturing element screenshot with snapdom:', error);
+
+      // 备用方法：使用 Canvas API 尝试截图
+      try {
+        // 简单的 Canvas 截图方法
+        const rect = element.getBoundingClientRect();
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) return null;
+
+        // 设置 canvas 大小
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        // 尝试绘制元素（仅适用于某些元素类型）
+        if (
+          element instanceof HTMLImageElement ||
+          element instanceof HTMLVideoElement ||
+          element instanceof HTMLCanvasElement
+        ) {
+          context.drawImage(element, 0, 0, rect.width, rect.height);
+          return canvas.toDataURL('image/png');
+        }
+      } catch (e) {
+        console.error('Canvas capture not supported:', e);
+      }
+
+      // 如果以上方法都失败，返回null
+      return null;
+    }
+  }, []);
+
+  /**
    * 处理点击事件
    */
   const handleClick = useCallback(
@@ -76,16 +140,53 @@ export const useRecording = () => {
       const target = event.target as Element;
       const selector = generateSelector(target);
 
+      // 捕获点击区域的截图
+      const screenshot = await captureElementScreenshot(target);
+      console.log('screenshot', screenshot);
+
+      // 获取元素的样式信息
+      const computedStyle = window.getComputedStyle(target);
+      const styleInfo = {
+        backgroundColor: computedStyle.backgroundColor,
+        color: computedStyle.color,
+        fontSize: computedStyle.fontSize,
+        border: computedStyle.border,
+        padding: computedStyle.padding,
+        width: computedStyle.width,
+        height: computedStyle.height,
+      };
+
+      // 获取元素的HTML内容
+      const htmlContent = target.outerHTML;
+      console.log(htmlContent, 'htmlContent');
+
+      // 生成唯一ID用于缓存
+      const screenshotId = screenshot ? `screenshot_${uuidv4()}` : null;
+
+      // 如果有截图，将其存储到扩展存储中
+      if (screenshot && screenshotId) {
+        try {
+          // 使用 Chrome 扩展存储 API 而不是 localStorage
+          await chrome.storage.local.set({ [screenshotId]: screenshot });
+        } catch (e) {
+          console.error('Failed to store screenshot in extension storage:', e);
+        }
+      }
+
       await recordingStorage.addStep({
         type: 'click',
         data: {
+          // timestamp: Date.now(),
           selector,
           coordinates: { x: event.clientX, y: event.clientY },
           description: `Click on ${target.tagName.toLowerCase()}${target.id ? '#' + target.id : ''}${target.className ? '.' + target.className.split(' ').join('.') : ''}`,
+          screenshotId,
+          styleInfo,
+          htmlContent,
         },
       });
     },
-    [isRecording, isPaused, generateSelector],
+    [isRecording, isPaused, generateSelector, captureElementScreenshot],
   );
 
   /**
@@ -106,36 +207,6 @@ export const useRecording = () => {
           description: `Input "${target.value}" into ${target.type || 'text'} field`,
         },
       });
-    },
-    [isRecording, isPaused, generateSelector],
-  );
-
-  /**
-   * 处理滚动事件
-   */
-  const handleScroll = useCallback(
-    async (event: Event) => {
-      if (!isRecording || isPaused) return;
-
-      const target = event.target as Document | HTMLElement;
-      const scrollTop = target === document ? window.pageYOffset : (target as HTMLElement).scrollTop;
-      const scrollLeft = target === document ? window.pageXOffset : (target as HTMLElement).scrollLeft;
-
-      // 防抖处理，避免过多的滚动事件
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-
-      scrollTimeoutRef.current = setTimeout(async () => {
-        await recordingStorage.addStep({
-          type: 'scroll',
-          data: {
-            selector: target === document ? 'window' : generateSelector(target as HTMLElement),
-            coordinates: { x: scrollLeft, y: scrollTop },
-            description: `Scroll to position (${scrollLeft}, ${scrollTop})`,
-          },
-        });
-      }, 300);
     },
     [isRecording, isPaused, generateSelector],
   );
@@ -198,19 +269,16 @@ export const useRecording = () => {
     // 监听输入事件
     document.addEventListener('input', handleInput, true);
 
-    // 监听滚动事件
-    document.addEventListener('scroll', handleScroll, true);
-
     // 设置导航监听器
     const cleanupNavigation = setupNavigationListener();
 
     return () => {
       document.removeEventListener('click', handleClick, true);
       document.removeEventListener('input', handleInput, true);
-      document.removeEventListener('scroll', handleScroll, true);
+
       cleanupNavigation();
     };
-  }, [handleClick, handleInput, handleScroll, setupNavigationListener]);
+  }, [handleClick, handleInput, setupNavigationListener]);
 
   /**
    * 初始化录制监听器
@@ -218,6 +286,7 @@ export const useRecording = () => {
   const initialize = useCallback(() => {
     if (isInitializedRef.current) return;
 
+    console.log('事件监听');
     isInitializedRef.current = true;
     const cleanup = setupEventListeners();
 
@@ -229,11 +298,6 @@ export const useRecording = () => {
    */
   const cleanup = useCallback(() => {
     if (!isInitializedRef.current) return;
-
-    // 清理滚动防抖定时器
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
 
     // 清理观察者
     observersRef.current.forEach(observer => observer.disconnect());

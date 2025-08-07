@@ -38,8 +38,10 @@
     "postinstall": "pnpm copy-env"
   },
   "dependencies": {
+    "@zumer/snapdom": "^1.9.7",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.9",

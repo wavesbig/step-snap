@@ -132,7 +132,7 @@ export const recordingStorage: BaseStorageType<RecordingStateType> & {
 
 export interface RecordingStep {
   id: string;
-  type: 'navigate' | 'click' | 'input' | 'scroll' | 'wait';
+  type: 'navigate' | 'click' | 'input' | 'wait';
   timestamp: number;
   data: {
     url?: string;
@@ -140,6 +140,17 @@ export interface RecordingStep {
     value?: string;
     coordinates?: { x: number; y: number };
     description?: string;
+    screenshotId?: string | null;
+    styleInfo?: {
+      backgroundColor?: string;
+      color?: string;
+      fontSize?: string;
+      border?: string;
+      padding?: string;
+      width?: string;
+      height?: string;
+    };
+    htmlContent?: string;
   };
 }
 
