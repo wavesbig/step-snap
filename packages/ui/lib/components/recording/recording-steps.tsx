@@ -13,7 +13,6 @@ export interface RecordingStep {
     selector?: string;
     value?: string;
     coordinates?: { x: number; y: number };
-    description?: string;
     screenshotId?: string | null;
     styleInfo?: {
       backgroundColor?: string;
@@ -139,8 +138,8 @@ export const RecordingSteps = ({
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="font-medium">{getStepTypeText(step.type)}</span>
-                    {step.type === 'click' && step.data.selector && (
-                      <span className="ml-2 text-sm text-gray-500">"{step.data.selector}"</span>
+                    {step.type === 'click' && step.data.htmlContent && (
+                      <span className="ml-2 text-sm text-gray-500">"{step.data.htmlContent}"</span>
                     )}
                   </div>
                   <div className="flex items-center">
@@ -152,9 +151,6 @@ export const RecordingSteps = ({
                     </button>
                   </div>
                 </div>
-
-                {/* 步骤详情 */}
-                <p className="text-sm text-gray-600 dark:text-gray-300">{step.data.description}</p>
 
                 {/* 显示点击区域截图 */}
                 {step.type === 'click' && step.data.screenshotId && screenshots[step.data.screenshotId] && (

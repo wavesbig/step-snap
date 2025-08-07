@@ -14,7 +14,6 @@ export default function RecordingApp() {
         type: 'navigate',
         data: {
           url: window.location.href,
-          description: `Navigate to ${window.location.href}`,
         },
       });
     } else {

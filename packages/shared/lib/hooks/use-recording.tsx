@@ -157,8 +157,9 @@ export const useRecording = () => {
       };
 
       // 获取元素的HTML内容
-      const htmlContent = target.outerHTML;
-      console.log(htmlContent, 'htmlContent');
+      const htmlContent = target.innerHTML;
+
+      console.log('htmlContent', htmlContent);
 
       // 生成唯一ID用于缓存
       const screenshotId = screenshot ? `screenshot_${uuidv4()}` : null;
@@ -179,7 +180,6 @@ export const useRecording = () => {
           // timestamp: Date.now(),
           selector,
           coordinates: { x: event.clientX, y: event.clientY },
-          description: `Click on ${target.tagName.toLowerCase()}${target.id ? '#' + target.id : ''}${target.className ? '.' + target.className.split(' ').join('.') : ''}`,
           screenshotId,
           styleInfo,
           htmlContent,
@@ -204,7 +204,6 @@ export const useRecording = () => {
         data: {
           selector,
           value: target.value,
-          description: `Input "${target.value}" into ${target.type || 'text'} field`,
         },
       });
     },
@@ -221,7 +220,6 @@ export const useRecording = () => {
       type: 'navigate',
       data: {
         url: window.location.href,
-        description: `Navigate to ${window.location.href}`,
       },
     });
   }, [isRecording, isPaused]);
@@ -310,14 +308,13 @@ export const useRecording = () => {
    * 添加等待步骤
    */
   const addWaitStep = useCallback(
-    async (duration: number, description?: string) => {
+    async (duration: number) => {
       if (!isRecording || isPaused) return;
 
       await recordingStorage.addStep({
         type: 'wait',
         data: {
           value: duration.toString(),
-          description: description || `Wait for ${duration}ms`,
         },
       });
     },
