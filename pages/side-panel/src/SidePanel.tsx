@@ -16,7 +16,7 @@ const SidePanel = () => {
     clearSteps,
     stopRecording,
     completeRecording,
-  } = useRecording();
+  } = useRecording({ disableEventListeners: true });
   const logo = isLight ? 'side-panel/logo_vertical.svg' : 'side-panel/logo_vertical_dark.svg';
 
   const handleStartCapture = async () => {

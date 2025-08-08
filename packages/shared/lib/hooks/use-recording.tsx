@@ -21,7 +21,7 @@ declare global {
 /**
  * 录制工具 Hook，用于在 React 组件中管理用户操作录制
  */
-export const useRecording = () => {
+export const useRecording = (options?: { disableEventListeners?: boolean }) => {
   const { isRecording, isPaused, steps } = useStorage(recordingStorage);
   const isInitializedRef = useRef(false);
   const observersRef = useRef<MutationObserver[]>([]);
@@ -374,13 +374,18 @@ export const useRecording = () => {
 
   // 当录制状态改变时，自动初始化或清理
   useEffect(() => {
+    // 如果禁用了事件监听器，则不自动初始化
+    if (options?.disableEventListeners) {
+      return;
+    }
+
     if (isRecording && !isInitializedRef.current) {
       const cleanupFn = initialize();
       return cleanupFn;
     } else if (!isRecording && isInitializedRef.current) {
       return cleanup();
     }
-  }, [isRecording, initialize, cleanup]);
+  }, [isRecording, initialize, cleanup, options?.disableEventListeners]);
 
   // 组件卸载时清理
   useEffect(
