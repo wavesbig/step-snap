@@ -61,10 +61,10 @@ export const RecordingSteps = ({ onBlur, className }: RecordingStepsProps) => {
   // 获取步骤类型的中文描述
   const getStepTypeText = (type: RecordingStep['type']): string => {
     const typeMap: Record<RecordingStep['type'], string> = {
-      navigate: '导航',
-      click: '点击',
-      input: '输入',
-      wait: '等待',
+      navigate: t('navigate'),
+      click: t('click'),
+      input: t('input'),
+      wait: t('wait'),
     };
     return typeMap[type] || type;
   };

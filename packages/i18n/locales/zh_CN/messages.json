@@ -10,7 +10,6 @@
   "toggleTheme": {
     "message": "切换主题"
   },
-
   "startCapture": {
     "message": "开始录制"
   },
@@ -34,6 +33,18 @@
   },
   "nowCapturingYourBrowser": {
     "message": "现在正在录制您的浏览器。"
+  },
+  "navigate": {
+    "message": "导航"
+  },
+  "click": {
+    "message": "点击"
+  },
+  "input": {
+    "message": "输入"
+  },
+  "wait": {
+    "message": "等待"
   },
   "injectButton": {
     "message": "点击注入内容脚本"
