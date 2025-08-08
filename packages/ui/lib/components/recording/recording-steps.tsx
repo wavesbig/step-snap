@@ -104,21 +104,14 @@ export const RecordingSteps = ({
 
               {/* 步骤内容 */}
               <div className="ml-12 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="font-medium">{getStepTypeText(step.type)}</span>
-                    {step.type === 'click' && step.data.htmlContent && (
-                      <span className="ml-2 text-sm text-gray-500">"{step.data.htmlContent}"</span>
-                    )}
+                <div className="mb-2 flex gap-x-2">
+                  <div className="flex-1 text-wrap text-left text-sm">
+                    {getStepTypeText(step.type)} "{step.data.htmlContent}"
                   </div>
-                  <div className="flex items-center">
-                    <button className="mr-2 text-gray-400 hover:text-gray-600">
-                      <EyeOff className="h-4 w-4" />
-                    </button>
-                    <button className="text-gray-400 hover:text-red-500">
-                      <Trash className="h-4 w-4" />
-                    </button>
-                  </div>
+
+                  <Button size="icon" variant="destructive" className="size-6">
+                    <Trash size={12} />
+                  </Button>
                 </div>
 
                 {/* 显示点击区域截图 */}
