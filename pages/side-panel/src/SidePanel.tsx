@@ -1,22 +1,13 @@
 import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
 import { useStorage, useRecording, withErrorBoundary, withSuspense } from '@extension/shared';
-import { exampleThemeStorage, overlayStorage, recordingStorage } from '@extension/storage';
+import { exampleThemeStorage, overlayStorage } from '@extension/storage';
 import { cn, ErrorDisplay, LoadingSpinner, Button, CirclePlay, RecordingSteps } from '@extension/ui';
 
 const SidePanel = () => {
   const { isLight } = useStorage(exampleThemeStorage);
-  const {
-    isRecording,
-    isPaused,
-    steps,
-    startRecording,
-    pauseRecording,
-    resumeRecording,
-    clearSteps,
-    stopRecording,
-    completeRecording,
-  } = useRecording({ disableEventListeners: true });
+  const { isRecording, startRecording } = useRecording({ disableEventListeners: true });
+
   const logo = isLight ? 'side-panel/logo_vertical.svg' : 'side-panel/logo_vertical_dark.svg';
 
   const handleStartCapture = async () => {
@@ -39,29 +30,6 @@ const SidePanel = () => {
     }
   };
 
-  const handleResume = async () => {
-    await resumeRecording();
-  };
-
-  const handlePause = async () => {
-    await pauseRecording();
-  };
-
-  const handleDelete = async () => {
-    await clearSteps();
-    await stopRecording();
-  };
-
-  const handleDeleteStep = async (stepId: string) => {
-    await recordingStorage.deleteStep(stepId);
-  };
-
-  const handleCompleteCapture = async () => {
-    const recordedSteps = await completeRecording();
-    console.log('录制完成，步骤数据：', recordedSteps);
-    // 这里可以添加保存或导出录制数据的逻辑
-  };
-
   return (
     <div className={cn('App', isLight ? 'bg-slate-50' : 'bg-gray-800')}>
       {!isRecording ? (
@@ -77,17 +45,7 @@ const SidePanel = () => {
           </Button>
         </div>
       ) : (
-        <RecordingSteps
-          steps={steps}
-          isRecording={isRecording}
-          isPaused={isPaused}
-          onPause={handlePause}
-          onResume={handleResume}
-          onBlur={() => console.log('模糊功能待实现')}
-          onDelete={handleDelete}
-          onDeleteStep={handleDeleteStep}
-          onComplete={handleCompleteCapture}
-        />
+        <RecordingSteps onBlur={() => console.log('模糊功能待实现')} />
       )}
     </div>
   );

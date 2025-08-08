@@ -1,6 +1,8 @@
 import { cn } from '../../utils';
 import { Button } from '../ui/button';
 import { t } from '@extension/i18n';
+import { useRecording } from '@extension/shared';
+import { recordingStorage } from '@extension/storage';
 import { Pause, Play, Trash, EyeOff, Check } from 'lucide-react';
 
 export interface RecordingStep {
@@ -27,34 +29,29 @@ export interface RecordingStep {
 }
 
 export interface RecordingStepsProps {
-  steps: RecordingStep[];
-  isRecording: boolean;
-  isPaused: boolean;
-  onPause?: () => void;
-  onResume?: () => void;
-  onBlur?: () => void;
-  onDelete?: () => void;
-  onDeleteStep?: (stepId: string) => void;
-  onComplete?: () => void;
   className?: string;
+  onBlur?: () => void; // 保留模糊功能的回调，因为这可能需要特殊处理
 }
 
 /**
  * 录制步骤组件
  * 用于展示录制的步骤列表和控制按钮
  */
-export const RecordingSteps = ({
-  steps,
-  // isRecording,
-  isPaused,
-  onPause,
-  onResume,
-  onBlur,
-  onDelete,
-  onDeleteStep,
-  onComplete,
-  className,
-}: RecordingStepsProps) => {
+export const RecordingSteps = ({ onBlur, className }: RecordingStepsProps) => {
+  // 使用 useRecording hook，禁用事件监听器
+  const { isPaused, steps, pauseRecording, resumeRecording, clearSteps, stopRecording, completeRecording } =
+    useRecording({ disableEventListeners: true });
+
+  // 删除单个步骤的处理函数
+  const handleDeleteStep = async (stepId: string) => {
+    await recordingStorage.deleteStep(stepId);
+  };
+
+  // 删除所有步骤的处理函数
+  const handleDelete = async () => {
+    await clearSteps();
+    await stopRecording();
+  };
   // 格式化时间戳为可读格式
   const formatTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -115,7 +112,7 @@ export const RecordingSteps = ({
                     size="icon"
                     variant="destructive"
                     className="size-6"
-                    onClick={() => onDeleteStep && onDeleteStep(step.id)}>
+                    onClick={() => handleDeleteStep(step.id)}>
                     <Trash size={12} />
                   </Button>
                 </div>
@@ -172,12 +169,12 @@ export const RecordingSteps = ({
       <div className="mt-2 border-t border-gray-200 px-6 py-3">
         <div className="grid grid-cols-3 gap-2">
           {isPaused ? (
-            <Button variant="outline" onClick={onResume} className="flex items-center justify-center gap-2">
+            <Button variant="outline" onClick={resumeRecording} className="flex items-center justify-center gap-2">
               <Play className="h-4 w-4" />
               <span>{t('resumeCapture')}</span>
             </Button>
           ) : (
-            <Button variant="outline" onClick={onPause} className="flex items-center justify-center gap-2">
+            <Button variant="outline" onClick={pauseRecording} className="flex items-center justify-center gap-2">
               <Pause className="h-4 w-4" />
               <span>{t('pauseCapture')}</span>
             </Button>
@@ -190,13 +187,13 @@ export const RecordingSteps = ({
             <span className="ml-1 rounded bg-purple-500 px-1 text-xs text-white">PRO</span>
           </Button>
 
-          <Button variant="outline" onClick={onDelete} className="flex items-center justify-center gap-2">
+          <Button variant="outline" onClick={handleDelete} className="flex items-center justify-center gap-2">
             <Trash className="h-4 w-4" />
             <span>{t('delete')}</span>
           </Button>
         </div>
 
-        <Button variant="default" className="mt-2 w-full" size="lg" onClick={onComplete}>
+        <Button variant="default" className="mt-2 w-full" size="lg" onClick={completeRecording}>
           <Check className="mr-2 h-4 w-4" />
           <span>{t('completeCapture')}</span>
         </Button>
