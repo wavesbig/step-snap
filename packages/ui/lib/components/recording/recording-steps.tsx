@@ -2,7 +2,6 @@ import { cn } from '../../utils';
 import { Button } from '../ui/button';
 import { t } from '@extension/i18n';
 import { Pause, Play, Trash, EyeOff, Check } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export interface RecordingStep {
   id: string;
@@ -13,7 +12,7 @@ export interface RecordingStep {
     selector?: string;
     value?: string;
     coordinates?: { x: number; y: number };
-    screenshotId?: string | null;
+    screenshot?: string | null;
     styleInfo?: {
       backgroundColor?: string;
       color?: string;
@@ -54,36 +53,6 @@ export const RecordingSteps = ({
   onComplete,
   className,
 }: RecordingStepsProps) => {
-  // 用于存储从localStorage加载的截图
-  const [screenshots, setScreenshots] = useState<Record<string, string>>({});
-
-  // 从Chrome扩展存储中加载截图
-  useEffect(() => {
-    console.log(steps, 'steps');
-    const loadScreenshots = async () => {
-      const loadedScreenshots: Record<string, string> = {};
-      const screenshotIds = steps.filter(step => step.data.screenshotId).map(step => step.data.screenshotId as string);
-
-      if (screenshotIds.length > 0) {
-        try {
-          // 使用Chrome扩展存储API获取所有截图
-          const result = await chrome.storage.local.get(screenshotIds);
-
-          // 将获取的截图添加到状态中
-          Object.keys(result).forEach(id => {
-            loadedScreenshots[id] = result[id];
-          });
-
-          setScreenshots(loadedScreenshots);
-        } catch (e) {
-          console.error('Failed to load screenshots from extension storage:', e);
-        }
-      }
-    };
-
-    loadScreenshots();
-  }, [steps]);
-
   // 格式化时间戳为可读格式
   const formatTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -153,12 +122,11 @@ export const RecordingSteps = ({
                 </div>
 
                 {/* 显示点击区域截图 */}
-                {step.type === 'click' && step.data.screenshotId && screenshots[step.data.screenshotId] && (
+                {step.type === 'click' && step.data.screenshot && (
                   <div className="mt-3 rounded border border-gray-200 p-2">
-                    <div className="mb-1 text-xs font-medium text-gray-500">点击区域截图：</div>
                     <div className="relative">
                       <img
-                        src={screenshots[step.data.screenshotId]}
+                        src={step.data.screenshot}
                         alt="点击区域截图"
                         className="max-h-40 w-auto rounded border border-gray-200"
                       />

@@ -2,7 +2,6 @@ import { useStorage } from './use-storage.js';
 import { recordingStorage } from '@extension/storage';
 import { snapdom } from '@zumer/snapdom';
 import { useEffect, useRef, useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 // 添加 ImageCapture 接口定义
 interface ImageCapture {
@@ -142,7 +141,6 @@ export const useRecording = () => {
 
       // 捕获点击区域的截图
       const screenshot = await captureElementScreenshot(target);
-      console.log('screenshot', screenshot);
 
       // 获取元素的样式信息
       const computedStyle = window.getComputedStyle(target);
@@ -156,23 +154,10 @@ export const useRecording = () => {
         height: computedStyle.height,
       };
 
-      // 获取元素的HTML内容
-      const htmlContent = target.innerHTML;
+      // 获取元素的文本内容（去除HTML标签）
+      const htmlContent = target.textContent || '';
 
       console.log('htmlContent', htmlContent);
-
-      // 生成唯一ID用于缓存
-      const screenshotId = screenshot ? `screenshot_${uuidv4()}` : null;
-
-      // 如果有截图，将其存储到扩展存储中
-      if (screenshot && screenshotId) {
-        try {
-          // 使用 Chrome 扩展存储 API 而不是 localStorage
-          await chrome.storage.local.set({ [screenshotId]: screenshot });
-        } catch (e) {
-          console.error('Failed to store screenshot in extension storage:', e);
-        }
-      }
 
       await recordingStorage.addStep({
         type: 'click',
@@ -180,7 +165,7 @@ export const useRecording = () => {
           // timestamp: Date.now(),
           selector,
           coordinates: { x: event.clientX, y: event.clientY },
-          screenshotId,
+          screenshot, // 直接传递截图数据，不使用screenshotId缓存
           styleInfo,
           htmlContent,
         },

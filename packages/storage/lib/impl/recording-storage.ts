@@ -140,7 +140,7 @@ export interface RecordingStep {
     value?: string;
     coordinates?: { x: number; y: number };
     description?: string;
-    screenshotId?: string | null;
+    screenshot?: string | null;
     styleInfo?: {
       backgroundColor?: string;
       color?: string;
