@@ -107,7 +107,7 @@ export const RecordingSteps = ({
               {/* 步骤内容 */}
               <div className="ml-12 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="mb-2 flex gap-x-2">
-                  <div className="flex-1 text-wrap text-left text-sm">
+                  <div className="flex-1 overflow-hidden break-all text-left text-sm">
                     {getStepTypeText(step.type)} "{step.data.htmlContent}"
                   </div>
 
@@ -127,17 +127,9 @@ export const RecordingSteps = ({
                       <img
                         src={step.data.screenshot}
                         alt="点击区域截图"
-                        className="max-h-40 w-auto rounded border border-gray-200"
+                        className="max-h-40 max-w-full rounded border border-gray-200"
                       />
-                      {step.data.coordinates && (
-                        <div
-                          className="absolute h-6 w-6 animate-pulse rounded-full border-2 border-red-500"
-                          style={{
-                            left: `calc(${step.data.coordinates.x}px - 12px)`,
-                            top: `calc(${step.data.coordinates.y}px - 12px)`,
-                          }}
-                        />
-                      )}
+                      {/* 移除坐标标记，因为它们在截图中已经有高亮区域 */}
                     </div>
                   </div>
                 )}
