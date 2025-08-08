@@ -84,50 +84,91 @@ export const useRecording = () => {
   /**
    * 捕获元素截图
    */
-  const captureElementScreenshot = useCallback(async (element: Element): Promise<string | null> => {
-    try {
-      // 使用 @zumer/snapdom 库捕获元素截图
-      const result = await snapdom(element as HTMLElement, {
-        // 配置选项
-        backgroundColor: 'transparent', // 透明背景
-        scale: window.devicePixelRatio || 1, // 使用设备像素比
-        format: 'png', // 输出格式为PNG
-      });
-
-      // 返回截图的 data URL
-      return result.url;
-    } catch (error) {
-      console.error('Error capturing element screenshot with snapdom:', error);
-
-      // 备用方法：使用 Canvas API 尝试截图
+  const captureElementScreenshot = useCallback(
+    async (element: Element, clickCoordinates?: { x: number; y: number }): Promise<string | null> => {
       try {
-        // 简单的 Canvas 截图方法
-        const rect = element.getBoundingClientRect();
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        if (!context) return null;
+        // 使用 @zumer/snapdom 库捕获元素截图
+        const result = await snapdom(element as HTMLElement, {
+          // 配置选项
+          backgroundColor: 'transparent', // 透明背景
+          scale: window.devicePixelRatio || 1, // 使用设备像素比
+          format: 'png', // 输出格式为PNG
+        });
 
-        // 设置 canvas 大小
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        // 如果有点击坐标，在截图上标记鼠标点击位置
+        if (clickCoordinates && result.url) {
+          const rect = element.getBoundingClientRect();
+          // 计算相对于元素的点击位置
+          const relativeX = clickCoordinates.x - rect.left;
+          const relativeY = clickCoordinates.y - rect.top;
 
-        // 尝试绘制元素（仅适用于某些元素类型）
-        if (
-          element instanceof HTMLImageElement ||
-          element instanceof HTMLVideoElement ||
-          element instanceof HTMLCanvasElement
-        ) {
-          context.drawImage(element, 0, 0, rect.width, rect.height);
+          // 创建一个新的图像对象加载截图
+          const img = new Image();
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.src = result.url;
+          });
+
+          // 创建canvas绘制标记
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return result.url;
+
+          // 绘制原始截图
+          ctx.drawImage(img, 0, 0);
+
+          // 计算缩放比例
+          const scaleX = img.width / rect.width;
+          const scaleY = img.height / rect.height;
+
+          // 绘制外层圆形高亮区域 - 使用橙色半透明圆形，与图片中效果一致
+          ctx.beginPath();
+          ctx.arc(relativeX * scaleX, relativeY * scaleY, 40 * scaleX, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 165, 0, 0.3)';
+          ctx.fill();
+
+          // 返回带有标记的截图
           return canvas.toDataURL('image/png');
         }
-      } catch (e) {
-        console.error('Canvas capture not supported:', e);
-      }
 
-      // 如果以上方法都失败，返回null
-      return null;
-    }
-  }, []);
+        // 返回原始截图的 data URL
+        return result.url;
+      } catch (error) {
+        console.error('Error capturing element screenshot with snapdom:', error);
+
+        // 备用方法：使用 Canvas API 尝试截图
+        try {
+          // 简单的 Canvas 截图方法
+          const rect = element.getBoundingClientRect();
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          if (!context) return null;
+
+          // 设置 canvas 大小
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+
+          // 尝试绘制元素（仅适用于某些元素类型）
+          if (
+            element instanceof HTMLImageElement ||
+            element instanceof HTMLVideoElement ||
+            element instanceof HTMLCanvasElement
+          ) {
+            context.drawImage(element, 0, 0, rect.width, rect.height);
+            return canvas.toDataURL('image/png');
+          }
+        } catch (e) {
+          console.error('Canvas capture not supported:', e);
+        }
+
+        // 如果以上方法都失败，返回null
+        return null;
+      }
+    },
+    [],
+  );
 
   /**
    * 处理点击事件
@@ -139,8 +180,8 @@ export const useRecording = () => {
       const target = event.target as Element;
       const selector = generateSelector(target);
 
-      // 捕获点击区域的截图
-      const screenshot = await captureElementScreenshot(target);
+      // 捕获点击区域的截图，并传递鼠标点击坐标
+      const screenshot = await captureElementScreenshot(target, { x: event.clientX, y: event.clientY });
 
       // 获取元素的样式信息
       const computedStyle = window.getComputedStyle(target);
