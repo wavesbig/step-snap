@@ -82,25 +82,27 @@ export const useRecording = (options?: { disableEventListeners?: boolean }) => {
   }, []);
 
   /**
-   * 捕获元素截图
+   * 捕获屏幕截图
    */
   const captureElementScreenshot = useCallback(
     async (element: Element, clickCoordinates?: { x: number; y: number }): Promise<string | null> => {
       try {
-        // 使用 @zumer/snapdom 库捕获元素截图
-        const result = await snapdom(element as HTMLElement, {
+        // 尝试捕获整个可见区域
+        // 首先尝试使用 document.documentElement 作为目标元素
+        const result = await snapdom(document.documentElement, {
           // 配置选项
           backgroundColor: 'transparent', // 透明背景
           scale: window.devicePixelRatio || 1, // 使用设备像素比
           format: 'png', // 输出格式为PNG
+          width: window.innerWidth, // 设置宽度为窗口内部宽度
+          height: window.innerHeight, // 设置高度为窗口内部高度
         });
 
         // 如果有点击坐标，在截图上标记鼠标点击位置
         if (clickCoordinates && result.url) {
-          const rect = element.getBoundingClientRect();
-          // 计算相对于元素的点击位置
-          const relativeX = clickCoordinates.x - rect.left;
-          const relativeY = clickCoordinates.y - rect.top;
+          // 点击坐标已经是相对于视口的坐标，不需要额外计算
+          const relativeX = clickCoordinates.x;
+          const relativeY = clickCoordinates.y;
 
           // 创建一个新的图像对象加载截图
           const img = new Image();
@@ -119,15 +121,26 @@ export const useRecording = (options?: { disableEventListeners?: boolean }) => {
           // 绘制原始截图
           ctx.drawImage(img, 0, 0);
 
-          // 计算缩放比例
-          const scaleX = img.width / rect.width;
-          const scaleY = img.height / rect.height;
+          // 计算缩放比例 - 现在是相对于整个窗口
+          const scaleX = img.width / window.innerWidth;
+          const scaleY = img.height / window.innerHeight;
 
-          // 绘制外层圆形高亮区域 - 使用橙色半透明圆形，与图片中效果一致
+          // 绘制点击高亮效果 - 参考图片中的样式
+
+          // 1. 绘制外层橙色圆形高亮
+          const highlightRadius = 40 * scaleX;
           ctx.beginPath();
-          ctx.arc(relativeX * scaleX, relativeY * scaleY, 40 * scaleX, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 165, 0, 0.3)';
+          ctx.arc(relativeX * scaleX, relativeY * scaleY, highlightRadius, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 165, 0, 0.3)'; // 半透明橙色
           ctx.fill();
+
+          // 2. 绘制内层橙色边框
+          const innerRadius = 20 * scaleX;
+          ctx.beginPath();
+          ctx.arc(relativeX * scaleX, relativeY * scaleY, innerRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = '#FFA500'; // 橙色
+          ctx.lineWidth = 3 * scaleX;
+          ctx.stroke();
 
           // 返回带有标记的截图
           return canvas.toDataURL('image/png');
