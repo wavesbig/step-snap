@@ -34,6 +34,7 @@ export interface RecordingStepsProps {
   onResume?: () => void;
   onBlur?: () => void;
   onDelete?: () => void;
+  onDeleteStep?: (stepId: string) => void;
   onComplete?: () => void;
   className?: string;
 }
@@ -50,6 +51,7 @@ export const RecordingSteps = ({
   onResume,
   onBlur,
   onDelete,
+  onDeleteStep,
   onComplete,
   className,
 }: RecordingStepsProps) => {
@@ -109,7 +111,11 @@ export const RecordingSteps = ({
                     {getStepTypeText(step.type)} "{step.data.htmlContent}"
                   </div>
 
-                  <Button size="icon" variant="destructive" className="size-6">
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="size-6"
+                    onClick={() => onDeleteStep && onDeleteStep(step.id)}>
                     <Trash size={12} />
                   </Button>
                 </div>

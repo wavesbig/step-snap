@@ -1,7 +1,7 @@
 import '@src/SidePanel.css';
 import { t } from '@extension/i18n';
 import { useStorage, useRecording, withErrorBoundary, withSuspense } from '@extension/shared';
-import { exampleThemeStorage, overlayStorage } from '@extension/storage';
+import { exampleThemeStorage, overlayStorage, recordingStorage } from '@extension/storage';
 import { cn, ErrorDisplay, LoadingSpinner, Button, CirclePlay, RecordingSteps } from '@extension/ui';
 
 const SidePanel = () => {
@@ -52,6 +52,10 @@ const SidePanel = () => {
     await stopRecording();
   };
 
+  const handleDeleteStep = async (stepId: string) => {
+    await recordingStorage.deleteStep(stepId);
+  };
+
   const handleCompleteCapture = async () => {
     const recordedSteps = await completeRecording();
     console.log('录制完成，步骤数据：', recordedSteps);
@@ -81,6 +85,7 @@ const SidePanel = () => {
           onResume={handleResume}
           onBlur={() => console.log('模糊功能待实现')}
           onDelete={handleDelete}
+          onDeleteStep={handleDeleteStep}
           onComplete={handleCompleteCapture}
         />
       )}
